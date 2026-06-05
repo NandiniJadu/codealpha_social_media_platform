@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus — Social Media Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f; --bg2: #111118; --bg3: #1a1a24; --bg4: #222230;
+    --border: #2a2a3a; --border2: #3a3a4f;
+    --text: #f0f0f8; --text2: #9090b0; --text3: #5a5a78;
+    --accent: #7c6fff; --accent2: #a594ff; --accent3: #5548e0;
+    --pink: #ff6b9d; --teal: #00d4aa; --amber: #ffb347;
+    --radius: 12px; --radius-sm: 8px; --radius-lg: 16px; --radius-xl: 24px;
+  }
+  body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+  /* ─── LAYOUT ─────────────────────────────────────── */
+  .app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ─── SIDEBAR ─────────────────────────────────────── */
+  .sidebar {
+    width: 250px; background: var(--bg2); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; padding: 1.5rem 1rem; flex-shrink: 0; overflow-y: auto;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 0 0.5rem; margin-bottom: 2rem; }
+  .logo-icon {
+    width: 38px; height: 38px; background: var(--accent); border-radius: 11px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; font-weight: 700;
+  }
+  .logo-text { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.03em; }
+  .nav-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); padding: 0 0.5rem; margin-bottom: 0.4rem; }
+  .nav-section { margin-bottom: 1.5rem; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 0.65rem 0.75rem;
+    border-radius: var(--radius-sm); cursor: pointer; font-size: 0.9rem; font-weight: 500;
+    color: var(--text2); transition: all 0.15s; border: none; background: none; width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(124,111,255,0.15); color: var(--accent); }
+  .nav-item i { font-size: 19px; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto; background: var(--accent); color: #fff;
+    font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 99px; min-width: 22px; text-align: center;
+  }
+  .sidebar-footer {
+    margin-top: auto; padding: 0.75rem; background: var(--bg3); border-radius: var(--radius);
+    display: flex; align-items: center; gap: 10px; cursor: pointer; border: 1px solid var(--border);
+    transition: border-color 0.15s;
+  }
+  .sidebar-footer:hover { border-color: var(--border2); }
+  .sidebar-user-info { flex: 1; min-width: 0; }
+  .sidebar-user-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-user-handle { font-size: 11px; color: var(--text3); }
+
+  /* ─── MAIN ─────────────────────────────────────────── */
+  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .topbar {
+    background: var(--bg2); border-bottom: 1px solid var(--border); padding: 1rem 1.5rem;
+    display: flex; align-items: center; gap: 1rem; position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(8px);
+  }
+  .topbar-title { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.01em; }
+  .search-wrap { flex: 1; max-width: 320px; margin-left: auto; position: relative; }
+  .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text3); font-size: 16px; pointer-events: none; }
+  .search-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px;
+    padding: 0.5rem 1rem 0.5rem 2.4rem; font-size: 13px; color: var(--text); font-family: 'Sora', sans-serif; outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input::placeholder { color: var(--text3); }
+  .search-input:focus { border-color: var(--accent); }
+
+  /* ─── FEED ──────────────────────────────────────────── */
+  .feed-container { padding: 1.5rem; max-width: 650px; width: 100%; margin: 0 auto; }
+
+  /* ─── COMPOSE ────────────────────────────────────────── */
+  .compose {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 1.25rem; margin-bottom: 1.5rem;
+  }
+  .compose-top { display: flex; gap: 12px; align-items: flex-start; }
+  .compose-textarea {
+    flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 0.75rem; font-family: 'Sora', sans-serif; font-size: 14px; color: var(--text);
+    resize: none; outline: none; min-height: 80px; line-height: 1.6; transition: border-color 0.15s;
+  }
+  .compose-textarea::placeholder { color: var(--text3); }
+  .compose-textarea:focus { border-color: var(--accent); }
+  .compose-actions {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border);
+  }
+  .compose-icons { display: flex; gap: 4px; }
+  .icon-btn {
+    background: none; border: none; cursor: pointer; padding: 7px; border-radius: var(--radius-sm);
+    color: var(--text2); transition: all 0.15s; font-size: 18px; display: flex; align-items: center; justify-content: center;
+  }
+  .icon-btn:hover { background: var(--bg3); color: var(--accent); }
+  .post-btn {
+    background: var(--accent); color: #fff; border: none; border-radius: 99px;
+    padding: 0.5rem 1.4rem; font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: 'Sora', sans-serif; transition: all 0.15s;
+  }
+  .post-btn:hover { background: var(--accent3); transform: translateY(-1px); }
+  .post-btn:active { transform: translateY(0); }
+
+  /* ─── POST CARD ──────────────────────────────────────── */
+  .post-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 1.25rem; margin-bottom: 1rem; transition: border-color 0.15s, transform 0.1s;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .post-card:hover { border-color: var(--border2); }
+  .post-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 0.875rem; }
+  .post-header-info { flex: 1; }
+  .post-author { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .post-name { font-weight: 600; font-size: 14px; color: var(--text); cursor: pointer; }
+  .post-name:hover { color: var(--accent); text-decoration: underline; }
+  .post-handle { font-size: 13px; color: var(--text3); }
+  .post-time { font-size: 12px; color: var(--text3); margin-left: auto; }
+  .verified-badge { background: var(--accent); color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 4px; font-weight: 600; }
+  .post-body { font-size: 14px; line-height: 1.75; color: var(--text); margin-bottom: 1rem; }
+  .post-tag { color: var(--accent); cursor: pointer; }
+  .post-tag:hover { text-decoration: underline; color: var(--accent2); }
+  .post-actions { display: flex; gap: 1.25rem; align-items: center; }
+  .action-btn {
+    display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer;
+    font-size: 13px; color: var(--text3); font-family: 'Sora', sans-serif; transition: all 0.15s;
+    padding: 5px 8px; border-radius: 8px;
+  }
+  .action-btn:hover { color: var(--text); background: var(--bg3); }
+  .action-btn.liked { color: var(--pink); }
+  .action-btn i { font-size: 17px; transition: transform 0.15s; }
+  .action-btn:hover i { transform: scale(1.15); }
+  .action-btn.bookmarked { color: var(--amber); }
+
+  /* ─── COMMENTS ────────────────────────────────────────── */
+  .comments-section { border-top: 1px solid var(--border); margin-top: 0.75rem; padding-top: 0.875rem; }
+  .comment {
+    display: flex; gap: 10px; margin-bottom: 0.65rem; padding: 0.65rem;
+    background: var(--bg3); border-radius: var(--radius-sm);
+    animation: fadeIn 0.2s ease;
+  }
+  .comment-body { flex: 1; min-width: 0; }
+  .comment-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .comment-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .comment-input-wrap { display: flex; gap: 8px; align-items: center; margin-top: 0.5rem; }
+  .comment-input {
+    flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px;
+    padding: 0.5rem 1rem; font-size: 13px; color: var(--text); font-family: 'Sora', sans-serif; outline: none;
+    transition: border-color 0.15s;
+  }
+  .comment-input::placeholder { color: var(--text3); }
+  .comment-input:focus { border-color: var(--accent); }
+  .comment-send {
+    background: var(--accent); color: #fff; border: none; border-radius: 50%;
+    width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; font-size: 15px; transition: all 0.15s;
+  }
+  .comment-send:hover { background: var(--accent3); transform: scale(1.05); }
+
+  /* ─── AVATAR HELPER ──────────────────────────────────── */
+  .avatar {
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-weight: 600; flex-shrink: 0;
+  }
+
+  /* ─── RIGHT PANEL ─────────────────────────────────────── */
+  .right-panel {
+    width: 300px; background: var(--bg2); border-left: 1px solid var(--border);
+    padding: 1.5rem 1rem; flex-shrink: 0; overflow-y: auto;
+  }
+  .panel-section { margin-bottom: 1.75rem; }
+  .panel-heading { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); margin-bottom: 0.75rem; }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 0.55rem 0; border-bottom: 1px solid var(--border); }
+  .user-row:last-child { border-bottom: none; }
+  .user-row-info { flex: 1; min-width: 0; }
+  .user-row-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+  .user-row-name:hover { color: var(--accent); }
+  .user-row-handle { font-size: 11px; color: var(--text3); }
+  .follow-btn {
+    background: rgba(124,111,255,0.12); color: var(--accent); border: 1px solid rgba(124,111,255,0.25);
+    border-radius: 99px; padding: 4px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+    font-family: 'Sora', sans-serif; transition: all 0.15s; white-space: nowrap;
+  }
+  .follow-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .follow-btn.following { background: var(--bg3); color: var(--text2); border-color: var(--border2); }
+  .follow-btn.following:hover { background: rgba(255,107,157,0.1); color: var(--pink); border-color: var(--pink); }
+  .trend-item { padding: 0.6rem 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: all 0.1s; }
+  .trend-item:last-child { border-bottom: none; }
+  .trend-item:hover .trend-tag { color: var(--accent2); }
+  .trend-category { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
+  .trend-tag { font-size: 13px; font-weight: 600; color: var(--text); margin: 2px 0; }
+  .trend-count { font-size: 11px; color: var(--text3); }
+
+  /* ─── PROFILE PAGE ───────────────────────────────────── */
+  .profile-page { padding: 1.5rem; max-width: 650px; margin: 0 auto; }
+  .profile-banner {
+    height: 170px; border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background: linear-gradient(135deg, #5548e0, #ff6b9d);
+    position: relative;
+  }
+  .profile-info {
+    background: var(--bg2); border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    padding: 1.25rem; margin-bottom: 1rem; position: relative;
+  }
+  .profile-avatar-wrap { position: absolute; top: -48px; left: 1.25rem; }
+  .profile-avatar-big {
+    width: 88px; height: 88px; border-radius: 50%; border: 4px solid var(--bg2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; font-weight: 700;
+  }
+  .profile-actions-row { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 1rem; }
+  .btn-outline {
+    border-radius: 99px; padding: 0.45rem 1.1rem; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.15s;
+    background: var(--bg3); color: var(--text); border: 1px solid var(--border2);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-accent {
+    border-radius: 99px; padding: 0.45rem 1.25rem; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: 'Sora', sans-serif; transition: all 0.15s;
+    background: var(--accent); color: #fff; border: 1px solid var(--accent);
+  }
+  .btn-accent:hover { background: var(--accent3); }
+  .profile-name { font-size: 1.25rem; font-weight: 700; margin-top: 0.25rem; display: flex; align-items: center; gap: 8px; }
+  .profile-handle { font-size: 13px; color: var(--text3); margin-bottom: 0.6rem; }
+  .profile-bio { font-size: 14px; color: var(--text2); line-height: 1.65; margin-bottom: 0.75rem; }
+  .profile-meta { display: flex; gap: 1.25rem; font-size: 13px; color: var(--text2); flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .profile-meta span { display: flex; align-items: center; gap: 4px; }
+  .profile-meta i { font-size: 14px; }
+  .profile-stats { display: flex; gap: 2rem; padding: 0.875rem 0; border-top: 1px solid var(--border); }
+  .stat-item { cursor: pointer; }
+  .stat-item:hover .stat-num { color: var(--accent); }
+  .stat-num { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+  .stat-label { font-size: 11px; color: var(--text3); }
+  .profile-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+  .profile-tab {
+    flex: 1; padding: 0.75rem; text-align: center; font-size: 13px; font-weight: 600; color: var(--text2);
+    cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; border-top: none; border-left: none; border-right: none;
+    background: none; font-family: 'Sora', sans-serif;
+  }
+  .profile-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .profile-tab:hover { color: var(--text); background: var(--bg3); }
+
+  /* ─── NOTIFICATIONS ──────────────────────────────────── */
+  .notif-page { padding: 1.5rem; max-width: 650px; margin: 0 auto; }
+  .notif-filter-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .notif-filter-btn {
+    padding: 5px 14px; border-radius: 99px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border); background: none;
+    color: var(--text2); font-family: 'Sora', sans-serif; transition: all 0.15s;
+  }
+  .notif-filter-btn:hover, .notif-filter-btn.active { background: rgba(124,111,255,0.12); color: var(--accent); border-color: rgba(124,111,255,0.3); }
+  .notif-item {
+    display: flex; align-items: flex-start; gap: 12px; padding: 1rem;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 0.5rem; cursor: pointer; transition: all 0.15s;
+  }
+  .notif-item:hover { border-color: var(--border2); background: var(--bg3); }
+  .notif-item.unread { border-left: 3px solid var(--accent); }
+  .notif-icon {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+  }
+  .notif-content { flex: 1; }
+  .notif-text { font-size: 13px; line-height: 1.5; color: var(--text); }
+  .notif-text strong { color: var(--accent2); }
+  .notif-time { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+  /* ─── MESSAGES ───────────────────────────────────────── */
+  .messages-page { display: flex; height: calc(100vh - 57px); overflow: hidden; }
+  .msg-list { width: 280px; border-right: 1px solid var(--border); overflow-y: auto; flex-shrink: 0; }
+  .msg-list-header { padding: 1rem; font-size: 14px; font-weight: 700; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg2); z-index: 1; }
+  .msg-row { display: flex; gap: 10px; padding: 0.75rem 1rem; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid var(--border); }
+  .msg-row:hover { background: var(--bg3); }
+  .msg-row.active { background: rgba(124,111,255,0.1); }
+  .msg-row-info { flex: 1; min-width: 0; }
+  .msg-row-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+  .msg-row-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .msg-row-time { font-size: 10px; color: var(--text3); }
+  .msg-row-preview { font-size: 12px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msg-unread-dot { width: 9px; height: 9px; background: var(--accent); border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .chat-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: var(--bg2); }
+  .chat-header-name { font-size: 14px; font-weight: 600; }
+  .chat-header-status { font-size: 12px; color: var(--teal); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 8px; }
+  .chat-msg { display: flex; gap: 8px; max-width: 78%; }
+  .chat-msg.mine { flex-direction: row-reverse; margin-left: auto; }
+  .chat-bubble {
+    background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 0.65rem 0.95rem; font-size: 13px; line-height: 1.55; color: var(--text);
+    animation: fadeIn 0.2s ease;
+  }
+  .chat-msg.mine .chat-bubble { background: rgba(124,111,255,0.18); border-color: rgba(124,111,255,0.28); }
+  .chat-time { font-size: 10px; color: var(--text3); margin-top: 3px; }
+  .chat-msg.mine .chat-time { text-align: right; }
+  .chat-input-area { padding: 1rem 1.25rem; border-top: 1px solid var(--border); display: flex; gap: 8px; background: var(--bg2); }
+  .chat-input {
+    flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 99px;
+    padding: 0.65rem 1rem; font-size: 13px; color: var(--text);
+    font-family: 'Sora', sans-serif; outline: none; transition: border-color 0.15s;
+  }
+  .chat-input::placeholder { color: var(--text3); }
+  .chat-input:focus { border-color: var(--accent); }
+  .chat-send {
+    background: var(--accent); color: #fff; border: none; border-radius: 50%;
+    width: 38px; height: 38px; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; transition: all 0.15s; flex-shrink: 0;
+  }
+  .chat-send:hover { background: var(--accent3); transform: scale(1.05); }
+
+  /* ─── EXPLORE ────────────────────────────────────────── */
+  .explore-page { padding: 1.5rem; max-width: 650px; margin: 0 auto; }
+  .explore-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 2rem; }
+  .explore-item {
+    aspect-ratio: 1; background: var(--bg3); border-radius: var(--radius); cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 1.8rem; position: relative; overflow: hidden;
+    border: 1px solid var(--border); transition: transform 0.15s, border-color 0.15s;
+  }
+  .explore-item:hover { transform: scale(1.04); border-color: var(--border2); }
+  .explore-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.75));
+    padding: 0.5rem 0.4rem 0.45rem; font-size: 12px; font-weight: 600; color: #fff; text-align: center;
+  }
+  .section-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+
+  /* ─── BOOKMARKS ──────────────────────────────────────── */
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text3); }
+  .empty-state i { font-size: 52px; display: block; margin-bottom: 1rem; opacity: 0.5; }
+  .empty-state h3 { font-size: 1rem; font-weight: 600; color: var(--text2); margin-bottom: 0.4rem; }
+
+  /* ─── TOAST ──────────────────────────────────────────── */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(90px);
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 99px;
+    padding: 0.65rem 1.4rem; font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; gap: 8px; z-index: 9999; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); color: var(--text);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast i { color: var(--teal); font-size: 16px; }
+
+  /* ─── MODAL / OVERLAY ─────────────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-xl);
+    padding: 2rem; width: 90%; max-width: 480px;
+  }
+  .modal h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; }
+  .modal-field { margin-bottom: 1rem; }
+  .modal-field label { font-size: 12px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 0.4rem; }
+  .modal-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 0.65rem 0.875rem; font-size: 13px; color: var(--text); font-family: 'Sora', sans-serif; outline: none;
+    transition: border-color 0.15s;
+  }
+  .modal-input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 1.5rem; }
+
+  /* ─── SCROLLBAR ──────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ════════════ SIDEBAR ════════════ -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">N</div>
+      <span class="logo-text">Nexus</span>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Navigate</div>
+      <button class="nav-item active" onclick="switchPage('feed', this)">
+        <i class="ti ti-home"></i> Home
+      </button>
+      <button class="nav-item" onclick="switchPage('explore', this)">
+        <i class="ti ti-compass"></i> Explore
+      </button>
+      <button class="nav-item" onclick="switchPage('notifications', this)">
+        <i class="ti ti-bell"></i> Notifications
+        <span class="nav-badge" id="notif-badge">3</span>
+      </button>
+      <button class="nav-item" onclick="switchPage('messages', this)">
+        <i class="ti ti-message-circle"></i> Messages
+        <span class="nav-badge" id="msg-badge">2</span>
+      </button>
+      <button class="nav-item" onclick="switchPage('profile', this)">
+        <i class="ti ti-user"></i> Profile
+      </button>
+      <button class="nav-item" onclick="switchPage('bookmarks', this)">
+        <i class="ti ti-bookmark"></i> Bookmarks
+      </button>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Account</div>
+      <button class="nav-item" onclick="openEditProfile()">
+        <i class="ti ti-edit"></i> Edit Profile
+      </button>
+      <button class="nav-item" onclick="showToast('Settings coming soon!')">
+        <i class="ti ti-settings"></i> Settings
+      </button>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="avatar" style="width:38px;height:38px;background:rgba(124,111,255,0.2);color:var(--accent);font-size:13px">AK</div>
+      <div class="sidebar-user-info">
+        <div class="sidebar-user-name" id="sb-name">Jadu Nandini</div>
+        <div class="sidebar-user-handle" id="sb-handle">@Nandini_J</div>
+      </div>
+      <i class="ti ti-dots-vertical" style="font-size:16px;color:var(--text3)"></i>
+    </div>
+  </aside>
+
+  <!-- ════════════ MAIN ════════════ -->
+  <main class="main" id="main-content">
+
+    <!-- ── HOME / FEED ── -->
+    <div id="page-feed">
+      <div class="topbar">
+        <span class="topbar-title">Home</span>
+        <div style="display:flex;gap:8px;margin-left:auto;align-items:center">
+          <div class="search-wrap" style="margin-left:0">
+            <i class="ti ti-search"></i>
+            <input class="search-input" placeholder="Search posts…" oninput="filterPosts(this.value)">
+          </div>
+          <button class="icon-btn" onclick="showToast('Feed refreshed!')"><i class="ti ti-refresh"></i></button>
+        </div>
+      </div>
+      <div class="feed-container">
+        <!-- Compose Box -->
+        <div class="compose">
+          <div class="compose-top">
+            <div class="avatar" style="width:42px;height:42px;background:rgba(124,111,255,0.2);color:var(--accent);font-size:14px;flex-shrink:0">JN</div>
+            <textarea class="compose-textarea" id="compose-text" placeholder="What's on your mind, Nandini?"></textarea>
+          </div>
+          <div class="compose-actions">
+            <div class="compose-icons">
+              <button class="icon-btn" title="Add Photo" onclick="showToast('Photo picker coming soon!')"><i class="ti ti-photo"></i></button>
+              <button class="icon-btn" title="Add Link" onclick="showToast('Link embed coming soon!')"><i class="ti ti-link"></i></button>
+              <button class="icon-btn" title="Poll" onclick="showToast('Poll creator coming soon!')"><i class="ti ti-chart-bar"></i></button>
+              <button class="icon-btn" title="Location" onclick="showToast('Location picker coming soon!')"><i class="ti ti-map-pin"></i></button>
+              <button class="icon-btn" title="Emoji" onclick="showToast('Emoji picker coming soon!')"><i class="ti ti-mood-smile"></i></button>
+            </div>
+            <button class="post-btn" onclick="createPost()">Post</button>
+          </div>
+        </div>
+        <!-- Posts -->
+        <div id="posts-container"></div>
+      </div>
+    </div>
+
+    <!-- ── EXPLORE ── -->
+    <div id="page-explore" style="display:none">
+      <div class="topbar">
+        <span class="topbar-title">Explore</span>
+        <div class="search-wrap"><i class="ti ti-search"></i><input class="search-input" placeholder="Search topics & people…"></div>
+      </div>
+      <div class="explore-page">
+        <div class="section-title"><i class="ti ti-fire" style="vertical-align:-2px;margin-right:6px;color:var(--amber)"></i>Trending Topics</div>
+        <div class="explore-grid" id="explore-grid"></div>
+        <div class="section-title"><i class="ti ti-users" style="vertical-align:-2px;margin-right:6px;color:var(--accent)"></i>Discover People</div>
+        <div id="explore-people"></div>
+      </div>
+    </div>
+
+    <!-- ── NOTIFICATIONS ── -->
+    <div id="page-notifications" style="display:none">
+      <div class="topbar"><span class="topbar-title">Notifications</span>
+        <button class="icon-btn" style="margin-left:auto" onclick="markAllRead()"><i class="ti ti-checks"></i></button>
+      </div>
+      <div class="notif-page">
+        <div class="notif-filter-row">
+          <button class="notif-filter-btn active" onclick="filterNotifs('all',this)">All</button>
+          <button class="notif-filter-btn" onclick="filterNotifs('like',this)">Likes</button>
+          <button class="notif-filter-btn" onclick="filterNotifs('follow',this)">Follows</button>
+          <button class="notif-filter-btn" onclick="filterNotifs('comment',this)">Comments</button>
+        </div>
+        <div id="notif-list"></div>
+      </div>
+    </div>
+
+    <!-- ── MESSAGES ── -->
+    <div id="page-messages" style="display:none">
+      <div class="topbar"><span class="topbar-title">Messages</span>
+        <button class="icon-btn" style="margin-left:auto" onclick="showToast('New conversation coming soon!')"><i class="ti ti-edit"></i></button>
+      </div>
+      <div class="messages-page">
+        <div class="msg-list">
+          <div class="msg-list-header">Inbox</div>
+          <div id="msg-list-content"></div>
+        </div>
+        <div class="chat-area">
+          <div class="chat-header" id="chat-header">
+            <div class="avatar" id="chat-avatar" style="width:38px;height:38px;font-size:13px;background:rgba(0,212,170,0.2);color:var(--teal)">SA</div>
+            <div>
+              <div class="chat-header-name" id="chat-name">Sneha Agarwal</div>
+              <div class="chat-header-status">● Online</div>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:4px">
+              <button class="icon-btn" onclick="showToast('Voice call coming soon!')"><i class="ti ti-phone"></i></button>
+              <button class="icon-btn" onclick="showToast('Video call coming soon!')"><i class="ti ti-video"></i></button>
+            </div>
+          </div>
+          <div class="chat-messages" id="chat-messages"></div>
+          <div class="chat-input-area">
+            <button class="icon-btn" onclick="showToast('Attach file coming soon!')"><i class="ti ti-paperclip"></i></button>
+            <input class="chat-input" id="chat-input" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()">
+            <button class="chat-send" onclick="sendMsg()"><i class="ti ti-send"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROFILE ── -->
+    <div id="page-profile" style="display:none">
+      <div class="topbar">
+        <button class="icon-btn" onclick="switchPage('feed', document.querySelector('.nav-item'))"><i class="ti ti-arrow-left"></i></button>
+        <span class="topbar-title" id="profile-topbar-name">Jadu Nandini</span>
+      </div>
+      <div class="profile-page">
+        <div class="profile-banner" id="profile-banner"></div>
+        <div class="profile-info">
+          <div class="profile-avatar-wrap">
+            <div class="profile-avatar-big" id="profile-avatar-big" style="background:rgba(124,111,255,0.22);color:var(--accent)">AK</div>
+          </div>
+          <div class="profile-actions-row" id="profile-actions-row">
+            <button class="btn-outline" onclick="showToast('Share profile link copied!')"><i class="ti ti-share" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Share</button>
+            <button class="btn-outline" onclick="openEditProfile()"><i class="ti ti-edit" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Edit Profile</button>
+          </div>
+          <div class="profile-name" id="profile-name-el">Jadu Nandini <span class="verified-badge">✓</span></div>
+          <div class="profile-handle" id="profile-handle-el">@Nandini_J · <span style="color:var(--text2)">Joined March 2023</span></div>
+          <div class="profile-bio" id="profile-bio-el">CSE-AIML student 🤖 | Passionate about AI, Web Development & Problem Solving 🚀 Building innovative projects and learning new technologies every day</div>
+          <div class="profile-meta" id="profile-meta-el">
+            <span><i class="ti ti-map-pin"></i> Hyderabad, IN</span>
+            <span><i class="ti ti-link"></i> <a href="https://.dev" target="_blank" style="color:var(--accent);text-decoration:none">https://github.com/</a></span>
+            <span><i class="ti ti-calendar"></i> March 2023</span>
+          </div>
+          <div class="profile-stats">
+            <div class="stat-item" onclick="showToast('Posts list')">
+              <div class="stat-num" id="prof-post-count">12</div>
+              <div class="stat-label">Posts</div>
+            </div>
+            <div class="stat-item" onclick="showToast('Followers list')">
+              <div class="stat-num" id="prof-followers">1.4K</div>
+              <div class="stat-label">Followers</div>
+            </div>
+            <div class="stat-item" onclick="showToast('Following list')">
+              <div class="stat-num" id="prof-following">382</div>
+              <div class="stat-label">Following</div>
+            </div>
+            <div class="stat-item" onclick="showToast('Liked posts')">
+              <div class="stat-num">4.2K</div>
+              <div class="stat-label">Likes</div>
+            </div>
+          </div>
+        </div>
+        <div class="profile-tabs">
+          <button class="profile-tab active" onclick="setProfileTab(0, this)">Posts</button>
+          <button class="profile-tab" onclick="setProfileTab(1, this)">Replies</button>
+          <button class="profile-tab" onclick="setProfileTab(2, this)">Media</button>
+          <button class="profile-tab" onclick="setProfileTab(3, this)">Likes</button>
+        </div>
+        <div id="profile-posts-container"></div>
+      </div>
+    </div>
+
+    <!-- ── BOOKMARKS ── -->
+    <div id="page-bookmarks" style="display:none">
+      <div class="topbar"><span class="topbar-title">Bookmarks</span>
+        <button class="icon-btn" style="margin-left:auto" onclick="clearBookmarks()"><i class="ti ti-trash"></i></button>
+      </div>
+      <div class="feed-container"><div id="bookmarks-container"></div></div>
+    </div>
+
+  </main>
+
+  <!-- ════════════ RIGHT PANEL ════════════ -->
+  <aside class="right-panel">
+    <div class="panel-section">
+      <div class="panel-heading">Who to follow</div>
+      <div id="suggested-users"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-heading">Trending now</div>
+      <div id="trending-list"></div>
+    </div>
+    <div class="panel-section">
+      <div class="panel-heading" style="margin-bottom:0.5rem">Active now</div>
+      <div style="display:flex;gap:-8px;flex-wrap:wrap;gap:6px" id="active-users"></div>
+    </div>
+  </aside>
+</div>
+
+<!-- ════════════ EDIT PROFILE MODAL ════════════ -->
+<div class="modal-overlay" id="edit-modal" style="display:none" onclick="closeEditModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2>Edit Profile</h2>
+    <div class="modal-field"><label>Display Name</label><input class="modal-input" id="edit-name" value="Jadu Nandini"></div>
+    <div class="modal-field"><label>Handle</label><input class="modal-input" id="edit-handle" value="Nandini_J"></div>
+    <div class="modal-field"><label>Bio</label><textarea class="modal-input" id="edit-bio" rows="3" style="resize:none">Full-stack developer &amp; UI enthusiast 🚀 Building the future, one commit at a time. Coffee addict ☕</textarea></div>
+    <div class="modal-field"><label>Location</label><input class="modal-input" id="edit-location" value="Hyderabad, IN"></div>
+    <div class="modal-field"><label>Website</label><input class="modal-input" id="edit-website" value="nandini.dev"></div>
+    <div class="modal-actions">
+      <button class="btn-outline" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-accent" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><i class="ti ti-check"></i><span id="toast-msg">Done!</span></div>
+
+<script>
+// ════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════
+const COLORS = [
+  {bg:'rgba(124,111,255,0.2)',fg:'var(--accent)'},
+  {bg:'rgba(0,212,170,0.2)',  fg:'var(--teal)'},
+  {bg:'rgba(255,107,157,0.2)',fg:'var(--pink)'},
+  {bg:'rgba(255,179,71,0.2)', fg:'var(--amber)'},
+  {bg:'rgba(85,72,224,0.2)',  fg:'var(--accent2)'},
+];
+
+const USERS = [
+  {id:1, name:'Sneha Agarwal', handle:'sneha_a', initials:'SA', ci:1, bio:'Data scientist & ML enthusiast 🤖', followers:2800, following:420, verified:true},
+  {id:2, name:'Ravi Mehta',    handle:'ravi_m',  initials:'RM', ci:2, bio:'UI/UX Designer @ TechCorp 🎨', followers:1200, following:310, verified:false},
+  {id:3, name:'Priya Nair',    handle:'priya_n', initials:'PN', ci:3, bio:'Startup founder | Coffee lover ☕', followers:5600, following:890, verified:true},
+  {id:4, name:'Karan Joshi',   handle:'karan_j', initials:'KJ', ci:4, bio:'Blockchain dev & crypto bro ₿', followers:980,  following:240, verified:false},
+  {id:5, name:'Divya Sharma',  handle:'divya_s', initials:'DS', ci:0, bio:'Photographer | Travel blogger 📸', followers:7200, following:1100, verified:true},
+];
+
+let ME = {name:'Jadu Nandini', handle:'nandini_j', initials:'JN', bio:"Full-stack developer & UI enthusiast 🚀 Building the future, one commit at a time. Coffee addict ☕", location:'Hyderabad, IN', website:'nandini.dev'};
+
+let posts = [
+  {id:1, userId:1, text:"Just shipped our new AI-powered feature! 🚀 The model achieves 94% accuracy on our benchmark. Thread below 🧵 #AI #MachineLearning #BuildInPublic", likes:142, liked:false, comments:[{name:'Ravi Mehta',text:'This is incredible! What dataset did you train on?'},{name:'Karan Joshi',text:'Congrats! Would love to see a deep-dive post.'}], showComments:false, bookmarked:false, time:'2h'},
+  {id:2, userId:3, text:"Hot take: Most 'productivity apps' are just procrastination tools wearing a productivity mask 😂 Fight me in the comments. #ProductivityMyths #TechTwitter", likes:89, liked:false, comments:[{name:'Sneha Agarwal',text:'Lmao so true. Nothing beats a good old sticky note.'}], showComments:false, bookmarked:false, time:'3h'},
+  {id:3, userId:2, text:"Finally redesigned my portfolio after 3 years. Clean, minimal, blazing fast ✨ Built with Astro + Tailwind. Check it out and absolutely roast me! #WebDev #Design #Portfolio", likes:312, liked:false, comments:[], showComments:false, bookmarked:false, time:'5h'},
+  {id:4, userId:5, text:"Caught this golden hour shot in Coorg last weekend 📸 No filters, no edits — just pure magic. Nature never disappoints 🌿 #Photography #Travel #Coorg #GoldenHour", likes:567, liked:false, comments:[{name:'Priya Nair',text:'Absolutely stunning! 😍'},{name:'Jadu Nandini',text:'This is wallpaper-worthy!'}], showComments:false, bookmarked:false, time:'8h'},
+  {id:5, userId:4, text:"Web3 is NOT dead. Layer 2 solutions have reduced gas fees by 99%. Ethereum processes 100K+ TPS on L2s now. The mainstream adoption is incoming. DYOR. #Crypto #Web3 #Ethereum #DeFi", likes:44, liked:false, comments:[], showComments:false, bookmarked:false, time:'12h'},
+  {id:6, userId:1, text:"Asked GPT-4, Claude, and Gemini the same question. Three wildly different answers. We are absolutely NOT in a post-AGI world yet 😅 #AI #LLMs #Tech", likes:203, liked:false, comments:[], showComments:false, bookmarked:false, time:'1d'},
+];
+let nextId = 10;
+
+const following = new Set([1, 3]);
+const bookmarks = new Set();
+
+let notifications = [
+  {id:1, type:'like',    icon:'ti-heart',         bg:'rgba(255,107,157,0.18)', fg:'var(--pink)',   text:'<strong>Sneha Agarwal</strong> liked your post about AI features.',          time:'5 min ago',  unread:true},
+  {id:2, type:'follow',  icon:'ti-user-plus',      bg:'rgba(124,111,255,0.18)', fg:'var(--accent)', text:'<strong>Priya Nair</strong> started following you.',                         time:'1 hour ago', unread:true},
+  {id:3, type:'comment', icon:'ti-message-circle', bg:'rgba(0,212,170,0.18)',   fg:'var(--teal)',   text:'<strong>Ravi Mehta</strong> commented: "Amazing work, really inspired me!"', time:'2 hours ago', unread:true},
+  {id:4, type:'mention', icon:'ti-at',             bg:'rgba(255,179,71,0.18)',  fg:'var(--amber)',  text:'<strong>Karan Joshi</strong> mentioned you in a post about blockchain dev.',  time:'4 hours ago', unread:false},
+  {id:5, type:'like',    icon:'ti-heart',          bg:'rgba(255,107,157,0.18)', fg:'var(--pink)',   text:'<strong>Divya Sharma</strong> liked your latest photo post.',                 time:'6 hours ago', unread:false},
+  {id:6, type:'follow',  icon:'ti-user-plus',      bg:'rgba(124,111,255,0.18)', fg:'var(--accent)', text:'<strong>Karan Joshi</strong> started following you.',                         time:'8 hours ago', unread:false},
+];
+
+let convos = [
+  {id:0, userId:1, messages:[
+    {mine:false,text:"Hey! Loved your AI post today 🔥",time:'10:30 AM'},
+    {mine:true, text:"Thanks Sneha! Been working on it for a few weeks now",time:'10:32 AM'},
+    {mine:false,text:"Would you be open to collaborating on a side project?",time:'10:33 AM'},
+    {mine:true, text:"Absolutely, let's hop on a call sometime this week!",time:'10:35 AM'},
+    {mine:false,text:"Perfect! I'll send a calendar invite 🗓",time:'10:36 AM'},
+  ], unread:true},
+  {id:1, userId:3, messages:[
+    {mine:false,text:"Hi Nandini! Your portfolio redesign idea sounds amazing",time:'9:00 AM'},
+    {mine:true, text:"Thanks Priya! Still working through the details",time:'9:05 AM'},
+    {mine:false,text:"Let me know when it's live, would love to share it!",time:'9:06 AM'},
+  ], unread:true},
+  {id:2, userId:2, messages:[
+    {mine:false,text:"Hey can you review my new design system?",time:'Yesterday'},
+    {mine:true, text:"Sure, send it over when you're ready!",time:'Yesterday'},
+    {mine:false,text:"Sent on email. Really appreciate the help!",time:'Yesterday'},
+    {mine:true, text:"Looks great! A few small tweaks in my reply.",time:'Yesterday'},
+  ], unread:false},
+  {id:3, userId:4, messages:[
+    {mine:false,text:"Bro you need to get into DeFi seriously",time:'2 days ago'},
+    {mine:true, text:"Haha maybe one day when I understand it better 😂",time:'2 days ago'},
+  ], unread:false},
+];
+
+let currentConvo = 0;
+let currentPage = 'feed';
+let profileViewUser = null;
+let notifFilter = 'all';
+
+// ════════════════════════════════════════════════
+//  AVATAR HELPER
+// ════════════════════════════════════════════════
+function makeAvatar(initials, ci, size=38, fontSize=13) {
+  const c = COLORS[ci % COLORS.length];
+  return `<div class="avatar" style="width:${size}px;height:${size}px;background:${c.bg};color:${c.fg};font-size:${fontSize}px">${initials}</div>`;
+}
+
+// ════════════════════════════════════════════════
+//  RENDER POSTS
+// ════════════════════════════════════════════════
+function renderPosts(arr, containerId) {
+  const c = document.getElementById(containerId);
+  if (!arr.length) {
+    c.innerHTML = `<div class="empty-state"><i class="ti ti-notes-off"></i><h3>No posts here</h3><p style="font-size:13px">When posts appear, they'll show up here.</p></div>`;
+    return;
+  }
+  c.innerHTML = arr.map(p => {
+    const isMe = p.userId === 0;
+    const u = isMe ? {name:ME.name,handle:ME.handle,initials:ME.initials,ci:0,verified:true} : USERS[p.userId-1];
+    const isFollowing = !isMe && following.has(u.id);
+    return `<div class="post-card" id="post-${p.id}">
+      <div class="post-header">
+        <div onclick="${isMe?'switchPage(\'profile\',document.querySelector(\'.nav-item\'))':'viewProfile('+u.id+')'}" style="cursor:pointer">${makeAvatar(u.initials, u.ci, 42, 14)}</div>
+        <div class="post-header-info">
+          <div class="post-author">
+            <span class="post-name" onclick="${isMe?'switchPage(\'profile\',document.querySelector(\'.nav-item\'))':'viewProfile('+u.id+')'}">${u.name}${u.verified?'&nbsp;<span class="verified-badge">✓</span>':''}</span>
+            <span class="post-handle">@${u.handle}</span>
+            <span class="post-time">${p.time}</span>
+          </div>
+        </div>
+        ${!isMe ? `<button style="margin-left:auto;background:${isFollowing?'var(--bg3)':'rgba(124,111,255,0.12)'};color:${isFollowing?'var(--text2)':'var(--accent)'};border:1px solid ${isFollowing?'var(--border2)':'rgba(124,111,255,0.25)'};border-radius:99px;padding:4px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.15s" onclick="toggleFollowInline(${u.id},this)">${isFollowing?'Following':'+ Follow'}</button>` : ''}
+      </div>
+      <div class="post-body">${p.text.replace(/#(\w+)/g,'<span class="post-tag">#$1</span>')}</div>
+      <div class="post-actions">
+        <button class="action-btn${p.liked?' liked':''}" onclick="likePost(${p.id},this)">
+          <i class="ti ti-heart${p.liked?'-filled':''}"></i>
+          <span id="lc-${p.id}">${p.likes}</span>
+        </button>
+        <button class="action-btn" onclick="toggleComments(${p.id})">
+          <i class="ti ti-message-circle"></i>
+          <span id="cc-${p.id}">${p.comments.length}</span>
+        </button>
+        <button class="action-btn" onclick="showToast('Reposted to your profile!')"><i class="ti ti-repeat"></i></button>
+        <button class="action-btn${p.bookmarked?' bookmarked':''}" onclick="toggleBookmark(${p.id},this)">
+          <i class="ti ti-bookmark${p.bookmarked?'-filled':''}"></i>
+        </button>
+        <button class="action-btn" style="margin-left:auto" onclick="showToast('Link copied to clipboard!')"><i class="ti ti-dots"></i></button>
+      </div>
+      <div class="comments-section" id="cs-${p.id}" style="display:${p.showComments?'block':'none'}">
+        <div id="cl-${p.id}">
+          ${p.comments.map(cm => {
+            const cu = USERS.find(x=>x.name===cm.name);
+            const ismeComment = cm.name==='Jadu Nandini';
+            return `<div class="comment">${makeAvatar(ismeComment?'JN':(cu?cu.initials:'??'), ismeComment?0:(cu?cu.ci:0), 30, 11)}<div class="comment-body"><div class="comment-name">${cm.name}</div><div class="comment-text">${cm.text}</div></div></div>`;
+          }).join('')}
+        </div>
+        <div class="comment-input-wrap">
+          ${makeAvatar('JN', 0, 30, 11)}
+          <input class="comment-input" id="ci-${p.id}" placeholder="Write a comment…" onkeydown="if(event.key==='Enter')addComment(${p.id})">
+          <button class="comment-send" onclick="addComment(${p.id})"><i class="ti ti-send" style="font-size:14px"></i></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+//  POST INTERACTIONS
+// ════════════════════════════════════════════════
+function likePost(id, btn) {
+  const p = posts.find(x=>x.id===id);
+  p.liked = !p.liked; p.likes += p.liked ? 1 : -1;
+  btn.className = 'action-btn' + (p.liked?' liked':'');
+  btn.innerHTML = `<i class="ti ti-heart${p.liked?'-filled':''}"></i><span id="lc-${id}">${p.likes}</span>`;
+}
+
+function toggleComments(id) {
+  const p = posts.find(x=>x.id===id);
+  p.showComments = !p.showComments;
+  document.getElementById('cs-'+id).style.display = p.showComments ? 'block' : 'none';
+}
+
+function addComment(id) {
+  const input = document.getElementById('ci-'+id);
+  const text = input.value.trim();
+  if (!text) return;
+  const p = posts.find(x=>x.id===id);
+  p.comments.push({name:ME.name, text});
+  input.value = '';
+  const list = document.getElementById('cl-'+id);
+  list.innerHTML += `<div class="comment" style="animation:fadeIn 0.2s ease">${makeAvatar('JN',0,30,11)}<div class="comment-body"><div class="comment-name">${ME.name}</div><div class="comment-text">${text}</div></div></div>`;
+  document.getElementById('cc-'+id).textContent = p.comments.length;
+  showToast('Comment added!');
+}
+
+function toggleBookmark(id, btn) {
+  const p = posts.find(x=>x.id===id);
+  p.bookmarked = !p.bookmarked;
+  if (p.bookmarked) bookmarks.add(id); else bookmarks.delete(id);
+  btn.className = 'action-btn' + (p.bookmarked?' bookmarked':'');
+  btn.innerHTML = `<i class="ti ti-bookmark${p.bookmarked?'-filled':''}"></i>`;
+  showToast(p.bookmarked ? 'Saved to bookmarks!' : 'Removed from bookmarks');
+}
+
+function toggleFollowInline(uid, btn) {
+  if (following.has(uid)) {
+    following.delete(uid);
+    btn.style.cssText = "margin-left:auto;background:rgba(124,111,255,0.12);color:var(--accent);border:1px solid rgba(124,111,255,0.25);border-radius:99px;padding:4px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.15s";
+    btn.textContent = '+ Follow';
+    showToast('Unfollowed');
+  } else {
+    following.add(uid);
+    btn.style.cssText = "margin-left:auto;background:var(--bg3);color:var(--text2);border:1px solid var(--border2);border-radius:99px;padding:4px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.15s";
+    btn.textContent = 'Following';
+    showToast('Now following!');
+  }
+  renderSuggested();
+}
+
+function createPost() {
+  const text = document.getElementById('compose-text').value.trim();
+  if (!text) { showToast('Write something first!'); return; }
+  const p = {id:nextId++, userId:0, text, likes:0, liked:false, comments:[], showComments:false, bookmarked:false, time:'just now'};
+  posts.unshift(p);
+  document.getElementById('compose-text').value = '';
+  renderPosts(posts, 'posts-container');
+  document.getElementById('prof-post-count').textContent = posts.filter(x=>x.userId===0).length + 12;
+  showToast('Post published! 🎉');
+}
+
+function filterPosts(q) {
+  const arr = q ? posts.filter(p=>p.text.toLowerCase().includes(q.toLowerCase())) : posts;
+  renderPosts(arr, 'posts-container');
+}
+
+// ════════════════════════════════════════════════
+//  PROFILE
+// ════════════════════════════════════════════════
+function viewProfile(uid) {
+  profileViewUser = USERS[uid-1];
+  switchPage('profile', null);
+  renderOtherProfile(profileViewUser);
+}
+
+function renderOtherProfile(u) {
+  document.getElementById('profile-topbar-name').textContent = u.name;
+  document.getElementById('profile-banner').style.background = `linear-gradient(135deg, ${COLORS[u.ci].fg}, #0a0a0f)`;
+  const avEl = document.getElementById('profile-avatar-big');
+  avEl.textContent = u.initials;
+  avEl.style.background = COLORS[u.ci].bg;
+  avEl.style.color = COLORS[u.ci].fg;
+  document.getElementById('profile-name-el').innerHTML = `${u.name}${u.verified?' <span class="verified-badge">✓</span>':''}`;
+  document.getElementById('profile-handle-el').innerHTML = `@${u.handle} · <span style="color:var(--text2)">Joined Jan 2023</span>`;
+  document.getElementById('profile-bio-el').textContent = u.bio;
+  document.getElementById('profile-meta-el').innerHTML = `<span><i class="ti ti-users"></i> ${(u.followers/1000).toFixed(1)}K followers</span>`;
+  document.querySelector('.stat-num').textContent = posts.filter(p=>p.userId===u.id).length;
+  document.querySelectorAll('.stat-num')[1].textContent = (u.followers/1000).toFixed(1)+'K';
+  document.querySelectorAll('.stat-num')[2].textContent = u.following;
+  const isFollowing = following.has(u.id);
+  document.getElementById('profile-actions-row').innerHTML = `
+    <button class="btn-outline" onclick="showToast('Opening DM...')"><i class="ti ti-message-circle" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Message</button>
+    <button id="prof-follow-btn" class="${isFollowing?'btn-outline':'btn-accent'}" onclick="toggleFollowProfile(${u.id},this)">${isFollowing?'Following':'Follow'}</button>`;
+  renderPosts(posts.filter(p=>p.userId===u.id), 'profile-posts-container');
+}
+
+function renderMyProfile() {
+  profileViewUser = null;
+  document.getElementById('profile-topbar-name').textContent = ME.name;
+  document.getElementById('profile-banner').style.background = 'linear-gradient(135deg, #5548e0, #ff6b9d)';
+  const avEl = document.getElementById('profile-avatar-big');
+  avEl.textContent = ME.initials;
+  avEl.style.background = COLORS[0].bg;
+  avEl.style.color = COLORS[0].fg;
+  document.getElementById('profile-name-el').innerHTML = `${ME.name} <span class="verified-badge">✓</span>`;
+  document.getElementById('profile-handle-el').innerHTML = `@${ME.handle} · <span style="color:var(--text2)">Joined March 2023</span>`;
+  document.getElementById('profile-bio-el').textContent = ME.bio;
+  document.getElementById('profile-meta-el').innerHTML = `<span><i class="ti ti-map-pin"></i> ${ME.location}</span><span><i class="ti ti-link"></i> <a href="https://${ME.website}" target="_blank" style="color:var(--accent);text-decoration:none">${ME.website}</a></span>`;
+  document.querySelector('.stat-num').textContent = posts.filter(p=>p.userId===0).length + 12;
+  document.querySelectorAll('.stat-num')[1].textContent = '1.4K';
+  document.querySelectorAll('.stat-num')[2].textContent = '382';
+  document.getElementById('profile-actions-row').innerHTML = `
+    <button class="btn-outline" onclick="showToast('Share link copied!')"><i class="ti ti-share" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Share</button>
+    <button class="btn-outline" onclick="openEditProfile()"><i class="ti ti-edit" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Edit Profile</button>`;
+  renderPosts(posts.filter(p=>p.userId===0), 'profile-posts-container');
+}
+
+function toggleFollowProfile(uid, btn) {
+  if (following.has(uid)) { following.delete(uid); btn.className='btn-outline'; btn.textContent='Follow'; showToast('Unfollowed'); }
+  else { following.add(uid); btn.className='btn-outline'; btn.textContent='Following'; showToast('Now following!'); }
+  renderSuggested();
+}
+
+function setProfileTab(idx, btn) {
+  document.querySelectorAll('.profile-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const labels = ['Posts','Replies','Media','Likes'];
+  if (idx===0) {
+    const u = profileViewUser;
+    renderPosts(u ? posts.filter(p=>p.userId===u.id) : posts.filter(p=>p.userId===0), 'profile-posts-container');
+  } else showToast(labels[idx]+' tab coming soon!');
+}
+
+// ════════════════════════════════════════════════
+//  SUGGESTED USERS + TRENDING
+// ════════════════════════════════════════════════
+function renderSuggested() {
+  const sugHtml = USERS.map(u => `
+    <div class="user-row">
+      ${makeAvatar(u.initials, u.ci, 36, 12)}
+      <div class="user-row-info">
+        <div class="user-row-name" onclick="viewProfile(${u.id})">${u.name}${u.verified?' <span class="verified-badge" style="font-size:9px">✓</span>':''}</div>
+        <div class="user-row-handle">@${u.handle}</div>
+      </div>
+      <button class="follow-btn${following.has(u.id)?' following':''}" onclick="toggleFollowSidebar(${u.id},this)">${following.has(u.id)?'Following':'Follow'}</button>
+    </div>`).join('');
+  document.getElementById('suggested-users').innerHTML = sugHtml;
+  const ep = document.getElementById('explore-people');
+  if (ep) ep.innerHTML = sugHtml;
+
+  // Active users
+  document.getElementById('active-users').innerHTML = USERS.slice(0,4).map(u =>
+    `<div title="${u.name}" style="position:relative;cursor:pointer" onclick="viewProfile(${u.id})">
+      ${makeAvatar(u.initials,u.ci,34,11)}
+      <div style="position:absolute;bottom:1px;right:1px;width:9px;height:9px;background:var(--teal);border-radius:50%;border:2px solid var(--bg2)"></div>
+    </div>`
+  ).join('');
+}
+
+function toggleFollowSidebar(uid, btn) {
+  if (following.has(uid)) { following.delete(uid); btn.className='follow-btn'; btn.textContent='Follow'; showToast('Unfollowed'); }
+  else { following.add(uid); btn.className='follow-btn following'; btn.textContent='Following'; showToast('Now following!'); }
+  document.getElementById('prof-following').textContent = 382 + following.size;
+}
+
+function renderTrending() {
+  const t = [
+    {cat:'Technology', tag:'#AIRevolution', count:'128K posts'},
+    {cat:'Design',     tag:'#UIDesign',     count:'45K posts'},
+    {cat:'Finance',    tag:'#CryptoIndia',  count:'32K posts'},
+    {cat:'Sports',     tag:'#IPL2024',      count:'210K posts'},
+    {cat:'Lifestyle',  tag:'#TravelDiaries',count:'67K posts'},
+  ];
+  document.getElementById('trending-list').innerHTML = t.map(x =>
+    `<div class="trend-item" onclick="showToast('Exploring ${x.tag}')">
+      <div class="trend-category">${x.cat}</div>
+      <div class="trend-tag">${x.tag}</div>
+      <div class="trend-count">${x.count}</div>
+    </div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════════════
+//  NOTIFICATIONS
+// ════════════════════════════════════════════════
+function renderNotifs() {
+  const arr = notifFilter==='all' ? notifications : notifications.filter(n=>n.type===notifFilter);
+  document.getElementById('notif-list').innerHTML = arr.length
+    ? arr.map(n => `<div class="notif-item${n.unread?' unread':''}" onclick="markRead(${n.id})">
+        <div class="notif-icon" style="background:${n.bg};color:${n.fg}"><i class="ti ${n.icon}"></i></div>
+        <div class="notif-content">
+          <div class="notif-text">${n.text}</div>
+          <div class="notif-time">${n.time}</div>
+        </div>
+        ${n.unread?'<div style="width:8px;height:8px;background:var(--accent);border-radius:50%;flex-shrink:0;margin-top:4px"></div>':''}
+      </div>`).join('')
+    : `<div class="empty-state"><i class="ti ti-bell-off"></i><h3>No notifications here</h3></div>`;
+}
+
+function markRead(id) {
+  const n = notifications.find(x=>x.id===id);
+  if (n) n.unread = false;
+  renderNotifs();
+  updateBadge();
+}
+
+function markAllRead() {
+  notifications.forEach(n=>n.unread=false);
+  renderNotifs(); updateBadge();
+  showToast('All notifications read!');
+}
+
+function filterNotifs(type, btn) {
+  notifFilter = type;
+  document.querySelectorAll('.notif-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNotifs();
+}
+
+function updateBadge() {
+  const u = notifications.filter(x=>x.unread).length;
+  const b = document.getElementById('notif-badge');
+  if (u) { b.textContent=u; b.style.display=''; } else b.style.display='none';
+}
+
+// ════════════════════════════════════════════════
+//  MESSAGES
+// ════════════════════════════════════════════════
+function renderMsgList() {
+  document.getElementById('msg-list-content').innerHTML = convos.map((c,i) => {
+    const u = USERS[c.userId-1];
+    const last = c.messages[c.messages.length-1];
+    return `<div class="msg-row${currentConvo===i?' active':''}" onclick="openConvo(${i})">
+      ${makeAvatar(u.initials, u.ci, 40, 13)}
+      <div class="msg-row-info">
+        <div class="msg-row-top">
+          <span class="msg-row-name">${u.name}</span>
+          <span class="msg-row-time">${last.time}</span>
+        </div>
+        <div class="msg-row-preview">${last.mine?'You: ':''}${last.text}</div>
+      </div>
+      ${c.unread?'<div class="msg-unread-dot"></div>':''}
+    </div>`;
+  }).join('');
+  renderChat();
+}
+
+function openConvo(idx) {
+  currentConvo = idx;
+  convos[idx].unread = false;
+  const unread = convos.filter(c=>c.unread).length;
+  const b = document.getElementById('msg-badge');
+  if (unread) b.textContent=unread; else b.style.display='none';
+  renderMsgList();
+}
+
+function renderChat() {
+  const c = convos[currentConvo];
+  const u = USERS[c.userId-1];
+  document.getElementById('chat-name').textContent = u.name;
+  const av = document.getElementById('chat-avatar');
+  av.textContent = u.initials;
+  av.style.background = COLORS[u.ci].bg;
+  av.style.color = COLORS[u.ci].fg;
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML = c.messages.map(m =>
+    `<div class="chat-msg${m.mine?' mine':''}">
+      ${!m.mine ? makeAvatar(u.initials,u.ci,30,11) : ''}
+      <div>
+        <div class="chat-bubble">${m.text}</div>
+        <div class="chat-time">${m.time}</div>
+      </div>
+    </div>`
+  ).join('');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const now = new Date();
+  const time = now.getHours()+':'+(now.getMinutes().toString().padStart(2,'0'));
+  convos[currentConvo].messages.push({mine:true, text, time});
+  input.value = '';
+  renderChat();
+  setTimeout(()=>{
+    const replies = ["Got it! 👍","Sounds great!","Thanks for letting me know!","Awesome!","Will do! 🙌","Cool, let me think about that."];
+    convos[currentConvo].messages.push({mine:false, text:replies[Math.floor(Math.random()*replies.length)], time});
+    renderChat();
+  }, 1200);
+}
+
+// ════════════════════════════════════════════════
+//  EXPLORE
+// ════════════════════════════════════════════════
+function renderExplore() {
+  const items = [
+    {emoji:'🤖', tag:'#AI',          bg:'rgba(124,111,255,0.28)'},
+    {emoji:'🎨', tag:'#Design',      bg:'rgba(255,107,157,0.28)'},
+    {emoji:'₿',  tag:'#Crypto',      bg:'rgba(255,179,71,0.28)'},
+    {emoji:'📸', tag:'#Photography', bg:'rgba(0,212,170,0.28)'},
+    {emoji:'🚀', tag:'#Startup',     bg:'rgba(85,72,224,0.28)'},
+    {emoji:'🎵', tag:'#Music',       bg:'rgba(255,107,157,0.22)'},
+    {emoji:'🏏', tag:'#Cricket',     bg:'rgba(0,212,170,0.22)'},
+    {emoji:'🍕', tag:'#Food',        bg:'rgba(255,179,71,0.22)'},
+    {emoji:'✈️', tag:'#Travel',      bg:'rgba(124,111,255,0.22)'},
+  ];
+  document.getElementById('explore-grid').innerHTML = items.map(i =>
+    `<div class="explore-item" style="background:${i.bg}" onclick="showToast('Exploring ${i.tag}')">
+      <span>${i.emoji}</span>
+      <div class="explore-overlay">${i.tag}</div>
+    </div>`
+  ).join('');
+}
+
+// ════════════════════════════════════════════════
+//  BOOKMARKS
+// ════════════════════════════════════════════════
+function renderBookmarks() {
+  const bm = posts.filter(p=>bookmarks.has(p.id));
+  renderPosts(bm, 'bookmarks-container');
+}
+
+function clearBookmarks() {
+  if (!bookmarks.size) { showToast('No bookmarks to clear!'); return; }
+  bookmarks.forEach(id=>{const p=posts.find(x=>x.id===id);if(p)p.bookmarked=false;});
+  bookmarks.clear();
+  renderPosts([], 'bookmarks-container');
+  showToast('All bookmarks cleared!');
+}
+
+// ════════════════════════════════════════════════
+//  EDIT PROFILE MODAL
+// ════════════════════════════════════════════════
+function openEditProfile() {
+  document.getElementById('edit-name').value = ME.name;
+  document.getElementById('edit-handle').value = ME.handle;
+  document.getElementById('edit-bio').value = ME.bio;
+  document.getElementById('edit-location').value = ME.location;
+  document.getElementById('edit-website').value = ME.website;
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEditModal(e) {
+  if (!e || e.target===document.getElementById('edit-modal')) {
+    document.getElementById('edit-modal').style.display = 'none';
+  }
+}
+
+function saveProfile() {
+  ME.name     = document.getElementById('edit-name').value.trim() || ME.name;
+  ME.handle   = document.getElementById('edit-handle').value.trim() || ME.handle;
+  ME.bio      = document.getElementById('edit-bio').value.trim() || ME.bio;
+  ME.location = document.getElementById('edit-location').value.trim() || ME.location;
+  ME.website  = document.getElementById('edit-website').value.trim() || ME.website;
+  document.getElementById('edit-modal').style.display = 'none';
+  document.getElementById('sb-name').textContent = ME.name;
+  document.getElementById('sb-handle').textContent = '@'+ME.handle;
+  if (currentPage==='profile' && !profileViewUser) renderMyProfile();
+  showToast('Profile updated! ✨');
+}
+
+// ════════════════════════════════════════════════
+//  PAGE SWITCHING
+// ════════════════════════════════════════════════
+function switchPage(page, btn, user=null) {
+  document.querySelectorAll('[id^="page-"]').forEach(el=>el.style.display='none');
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+page).style.display = 'block';
+  if (btn) btn.classList.add('active');
+  currentPage = page;
+
+  if (page==='notifications') renderNotifs();
+  if (page==='messages')      renderMsgList();
+  if (page==='explore')       { renderExplore(); renderSuggested(); }
+  if (page==='bookmarks')     renderBookmarks();
+  if (page==='profile') {
+    if (user) { profileViewUser=user; renderOtherProfile(user); }
+    else renderMyProfile();
+  }
+}
+
+// ════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+renderPosts(posts, 'posts-container');
+renderSuggested();
+renderTrending();
+</script>
+</body>
+</html>
